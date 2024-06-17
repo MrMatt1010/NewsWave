@@ -53,7 +53,7 @@ def home():
         total_results = top_headlines['totalResults']
         if total_results > 100:
             total_results = 100
-        all_headlines = newsapi.get_top_headlines(country="in",
+        all_headlines = newsapi.get_top_headlines(country="us",
                                                      language="en", 
                                                      page_size=total_results)['articles']
         return render_template("home.html", all_headlines = all_headlines)
