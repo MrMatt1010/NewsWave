@@ -54,7 +54,7 @@ def home():
     all_headlines = newsapi.get_top_headlines(country="nz", language="en", page_size=total_results)['articles']
     return render_template("home.html", all_headlines=all_headlines)
   
-  return render_template("home.html")
+    return render_template("home.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
