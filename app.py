@@ -24,7 +24,7 @@ def get_sources_and_domains():
         sources.append(id)
         domains.append(domain)
     return sources, domains
-
+# The code here allows the user to select the region they want to read the news from via the drop down menu in the html
 @app.route("/", methods=['GET', 'POST'])
 def home():
   if request.method == "POST":
