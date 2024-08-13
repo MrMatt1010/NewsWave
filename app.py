@@ -6,7 +6,7 @@ from newsapi import NewsApiClient
 app = Flask(__name__)
 
 # Init news api 
-newsapi = NewsApiClient(api_key='cad07dc33d534c508a93ae9128e9d716')
+newsapi = NewsApiClient(api_key='c7ceb304f7de46b091b25f6096a1e515')
 
 # helper function
 def get_sources_and_domains():
