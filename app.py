@@ -95,8 +95,8 @@ def home():
         
         # Retrieve the total number of top headlines available
         total_results = top_headlines['totalResults']
-        if total_results > 100:
-            total_results = 100  # Limit the number of headlines to a maximum of 100
+        if total_results > 20:
+            total_results = 20  # Limit the number of headlines to a maximum of 100
         
         # Fetch the top headlines with a limited number of results
         all_headlines = newsapi.get_top_headlines(country="us",
