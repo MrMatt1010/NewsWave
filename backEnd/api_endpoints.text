@@ -1,0 +1,88 @@
+User Creation:
+
+Endpoint: POST /user
+Description: Creates a new user with userName, password, and email.
+User Login:
+
+Endpoint: POST /login
+Description: Authenticates a user and returns a session token.
+User Logout:
+
+Endpoint: POST /logout
+Description: Logs out the user and invalidates the session token.
+Update User Settings:
+
+Endpoint: PUT /user/settings
+Description: Updates user settings, including readToMe and magnifiedText.
+Update User Topics:
+
+Endpoint: PUT /user/topics
+Description: Updates the user's preferential topics list.
+Document-Related Endpoints
+Create Document Vector:
+
+Endpoint: POST /document/vector
+Description: Creates a vector from the document content and stores it.
+Store Document:
+
+Endpoint: POST /document
+Description: Stores a new document in the database.
+Retrieve Documents:
+
+Endpoint: GET /documents
+Description: Retrieves a list of documents from the database.
+Retrieve Single Document:
+
+Endpoint: GET /document/{documentID}
+Description: Retrieves a specific document by documentID.
+VectorStore-Related Endpoints
+Store Vector:
+
+Endpoint: POST /vector/store
+Description: Stores a vector in the vector store.
+Retrieve Vector:
+
+Endpoint: GET /vector/retrieve
+Description: Retrieves a list of vectors based on a query or criteria.
+AI Model-Related Endpoints
+Generate AI Content:
+Endpoint: POST /ai/generate
+Description: Generates content using the AI model.
+RAG System-Related Endpoints
+Retrieve and Generate Content:
+Endpoint: POST /rag/retrieve-and-generate
+Description: Retrieves relevant content and generates a response.
+Database-Related Endpoints
+Store Document in Database:
+
+Endpoint: POST /database/document
+Description: Stores a document in the database.
+Retrieve Documents from Database:
+
+Endpoint: GET /database/documents
+Description: Retrieves a list of documents from the database.
+Retrieve Single Document from Database:
+
+Endpoint: GET /database/document/{documentID}
+Description: Retrieves a specific document from the database by documentID.
+NewsFeedAPI-Related Endpoints
+Fetch Articles:
+Endpoint: GET /newsfeed/articles
+Description: Fetches a list of articles from the news feed.
+ArticleToTalkAPI-Related Endpoints
+Convert Article to Audio:
+Endpoint: POST /article-to-talk/convert
+Description: Converts an article's content to audio.
+UserFeedModel-Related Endpoints
+Get User Feed:
+
+Endpoint: GET /userfeed
+Description: Retrieves a list of articles and advertisements tailored to the user.
+Get Article:
+
+Endpoint: GET /userfeed/article
+Description: Retrieves a specific article from the user's feed.
+Get Advert:
+
+Endpoint: GET /userfeed/advert
+Description: Retrieves a specific advertisement from the user's feed.
