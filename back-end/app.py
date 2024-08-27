@@ -1,82 +1,87 @@
-# import libraries
-from flask import Flask, render_template, request
-from newsapi import NewsApiClient
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
+import os
+import requests
 
-# init flask app
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///news.db'
+db = SQLAlchemy(app)
 
-# Init news api 
-newsapi = NewsApiClient(api_key='cad07dc33d534c508a93ae9128e9d716')
+class Article(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(300), unique=True, nullable=False)
+    image_path = db.Column(db.String(300), nullable=True)
 
-# helper function
-def get_sources_and_domains():
-    all_sources = newsapi.get_sources()['sources']
-    sources = []
-    domains = []
-    for e in all_sources:
-        id = e['id']
-        domain = e['url'].replace("http://", "")
-        domain = domain.replace("https://", "")
-        domain = domain.replace("www.", "")
-        slash = domain.find('/')
-        if slash != -1:
-            domain = domain[:slash]
-        sources.append(id)
-        domains.append(domain)
-    return sources, domains
+db.create_all()
+print("Database created")
 
-@app.route("/", methods=['GET', 'POST'])
-def home():
-    if request.method == "POST":
-        sources, domains = get_sources_and_domains()
-        keyword = request.form["keyword"]
+def save_image(url, article_id):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
         
-        # Making the first call without sources and domains if they are too many
-        if len(sources) > 20 or len(domains) > 20:
-            related_news = newsapi.get_everything(q=keyword,
-                                                  language='en',
-                                                  sort_by='relevancy')
-        else:
-            sources_str = ", ".join(sources)
-            domains_str = ", ".join(domains)
-            related_news = newsapi.get_everything(q=keyword,
-                                                  sources=sources_str,
-                                                  domains=domains_str,
-                                                  language='en',
-                                                  sort_by='relevancy')
+        # Create the images directory if it doesn't exist
+        if not os.path.exists('images'):
+            os.makedirs('images')
         
-        no_of_articles = related_news['totalResults']
-        if no_of_articles > 100:
-            no_of_articles = 100
-        
-        # Fetching articles based on the number of articles found
-        if len(sources) > 20 or len(domains) > 20:
-            all_articles = newsapi.get_everything(q=keyword,
-                                                  language='en',
-                                                  sort_by='relevancy',
-                                                  page_size=no_of_articles)['articles']
-        else:
-            all_articles = newsapi.get_everything(q=keyword,
-                                                  sources=sources_str,
-                                                  domains=domains_str,
-                                                  language='en',
-                                                  sort_by='relevancy',
-                                                  page_size=no_of_articles)['articles']
-        
-        return render_template("home.html", all_articles=all_articles, keyword=keyword)
+        image_path = f'images/{article_id}.jpg'
+        with open(image_path, 'wb') as file:
+            file.write(response.content)
+        return image_path
+    except Exception as e:
+        print(f"Failed to save image: {e}")
+        return None
+
+@app.route("/collect_news", methods=['POST'])
+def collect_news():
+    keyword = request.json.get('keyword')
+    sources, domains = get_sources_and_domains()
     
+    # Fetching articles based on sources and domains
+    if len(sources) > 20 or len(domains) > 20:
+        related_news = newsapi.get_everything(q=keyword, language='en', sort_by='relevancy')
     else:
-        top_headlines = newsapi.get_top_headlines(country="us", language="en")
-        total_results = top_headlines['totalResults']
-        if total_results > 100:
-            total_results = 100
-        all_headlines = newsapi.get_top_headlines(country="us",
-                                                  language="en", 
-                                                  page_size=total_results)['articles']
-        return render_template("home.html", all_headlines=all_headlines)
+        sources_str = ", ".join(sources)
+        domains_str = ", ".join(domains)
+        related_news = newsapi.get_everything(q=keyword, sources=sources_str, domains=domains_str, language='en', sort_by='relevancy')
     
-    return render_template("home.html")
+    no_of_articles = related_news['totalResults']
+    if no_of_articles > 100:
+        no_of_articles = 100
+    
+    all_articles = related_news['articles']
+    
+    saved_articles = []
+    
+    for article in all_articles:
+        title = article.get('title')
+        description = article.get('description')
+        url = article.get('url')
+        image_url = article.get('urlToImage')
+        
+        # Check if the article already exists
+        existing_article = Article.query.filter_by(url=url).first()
+        if existing_article:
+            continue
+        
+        # Save image if it exists
+        image_path = save_image(image_url, article_id=len(saved_articles)+1) if image_url else None
+        
+        # Save the article in the database
+        new_article = Article(title=title, description=description, url=url, image_path=image_path)
+        
+        try:
+            db.session.add(new_article)
+            db.session.commit()
+            saved_articles.append(new_article)
+        except IntegrityError:
+            db.session.rollback()
+            continue
+    
+    return jsonify({"message": "News collected and stored successfully!", "articles_saved": len(saved_articles)})
 
 if __name__ == "__main__":
     app.run(debug=True)
-
