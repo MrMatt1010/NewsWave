@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from newsapi import NewsApiClient
 from .models import Article
 from django.utils.dateparse import parse_datetime
+from django.views.decorators.csrf import csrf_exempt
 
 # Initialize the News API client
 newsapi = NewsApiClient(api_key='cad07dc33d534c508a93ae9128e9d716')
@@ -23,6 +24,7 @@ def get_sources_and_domains():
     return sources, domains
 
 # Django view for fetching and storing news articles
+@csrf_exempt
 def fetch_and_store_articles(request):
     if request.method == "POST":
         keyword = request.POST.get("keyword", "")
@@ -63,5 +65,5 @@ def fetch_and_store_articles(request):
         return JsonResponse({"error": "POST request required."}, status=400)
 
 # Endpoint testing
-def test_endpoint():
+def test_endpoint(request):
     return JsonResponse({"message": "Endpoint Reached."}, status=200)

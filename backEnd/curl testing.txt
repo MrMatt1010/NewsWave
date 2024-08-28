@@ -8,3 +8,4 @@ curl -X POST http://localhost:8000/api/users/login/ \
     -d '{"username": "johndoe", "password": "securepassword"}'
 
 
+curl -X POST -d "keyword=technology" http://localhost:8000/fetch-news/
