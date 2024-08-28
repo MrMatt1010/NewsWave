@@ -1,0 +1,11 @@
+curl -X POST http://localhost:8000/api/users/register/ \
+    -H "Content-Type: application/json" \
+    -d '{"username": "johndoe", "email": "john@example.com", "password": "securepassword"}'
+
+
+curl -X POST http://localhost:8000/api/users/login/ \
+    -H "Content-Type: application/json" \
+    -d '{"username": "johndoe", "password": "securepassword"}'
+
+
+curl -X POST -d "keyword=technology" http://localhost:8000/fetch-news/
